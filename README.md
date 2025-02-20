@@ -33,7 +33,7 @@ pip install opencv-python mediapipe numpy
 1. Run the script:
 
 ```sh
-python workout_tracker.py
+python Curl-Tracker.py
 ```
 
 1. Select an exercise when prompted (`bicep_curl`, `squat`, or `push_up`).
