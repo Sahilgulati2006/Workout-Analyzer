@@ -9,7 +9,7 @@ exercises = {
         "min_angle": 40,
         "max_angle": 160,
     },
-    "squat": {"joints": ["hip", "knee", "ankle"], "min_angle": 90, "max_angle": 170},
+    "squat": {"joints": ["hip", "knee", "ankle"], "min_angle": 160, "max_angle": 75},
     "push_up": {
         "joints": ["shoulder", "elbow", "wrist"],
         "min_angle": 70,
@@ -51,7 +51,7 @@ def main():
 
     # Exercise Tracking Variables
     counter = 0
-    stage = "down"
+    # stage = "down"
     start_time = time.time()
     rep_times = []
     fatigue_threshold = 5  # Seconds per rep indicating fatigue
@@ -83,17 +83,61 @@ def main():
                         )
                 except AttributeError:
                     pass
+                if len(joint_coords) >= 3:
+                    cv2.line(image,
+                            tuple(np.multiply(joint_coords[0],[640,480]).astype(int)),
+                            tuple(np.multiply(joint_coords[1],[640,480]).astype(int)),
+                            (255, 0, 0), 5)
+                    cv2.line(image, 
+                            tuple(np.multiply(joint_coords[1], [640, 480]).astype(int)), 
+                            tuple(np.multiply(joint_coords[2], [640, 480]).astype(int)), 
+                            (255, 0, 0), 5)  # Line from middle joint to end joint
+                    for joint in joint_coords:
+                        cv2.circle(image, tuple(np.multiply(joint, [640, 480]).astype(int)), 8, (0, 255, 0), -1)
+
+                    
                 # Calculate angle for the selected exercise
                 angle = calculate_angle(*joint_coords)
                 last_angle = int(angle)
 
                 # Rep count logic
-                if angle <= exercise["min_angle"] and stage == "down":
-                    stage = "up"
-                    rep_times.append(time.time())
-                if angle >= exercise["max_angle"] and stage == "up":
+                if exercise_name == "bicep_curl":
                     stage = "down"
-                    counter += 1
+                    if angle <= exercise["min_angle"] and stage == "down":
+                        stage = "up"
+                        rep_times.append(time.time())
+                    if angle >= exercise["max_angle"] and stage == "up":
+                        stage = "down"
+                        counter += 1
+
+                    if angle >= exercise["max_angle"]:
+                        feedback = "Go up!"
+                        color = (0, 0, 255)
+                    elif angle <= exercise["min_angle"]:
+                        feedback = "Go down!"
+                        color = (0, 255, 0)
+                    else:
+                        feedback = "Keep going!"
+                        color = (255, 255, 0)
+
+                
+                elif exercise_name == "squat":
+                    stage = "up"
+                    if angle <= exercise["min_angle"] and stage == "up":
+                        stage = "down"
+                        rep_times.append(time.time())
+                    if angle >= exercise["max_angle"] and stage == 'down':
+                        stage = "up"
+                        counter +=1
+                    if angle >= exercise["max_angle"]:
+                        feedback = "Go down!"
+                        color = (0, 0, 255)
+                    elif angle <= exercise["max_angle"]:
+                        feedback = "Go up!"
+                        color = (0, 255, 0)
+                    else:
+                        feedback = "Keep going!"
+                        color = (255, 255, 0)
 
                 # Display rep count and workout time
                 elapsed_time = int(time.time() - start_time)
@@ -128,17 +172,7 @@ def main():
                     cv2.LINE_AA,
                 )
 
-                # Form correction feedback
-                if angle >= exercise["max_angle"]:
-                    feedback = "Go up!"
-                    color = (0, 0, 255)
-                elif angle <= exercise["min_angle"]:
-                    feedback = "Go down!"
-                    color = (0, 255, 0)
-                else:
-                    feedback = "Keep going!"
-                    color = (255, 255, 0)
-
+                
                 cv2.putText(
                     image,
                     feedback,
@@ -180,3 +214,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
