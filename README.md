@@ -60,4 +60,4 @@ This project is open-source and available for modification and distribution.
 
 ## Author
 
-Atharve Pandey
+Sahil Gulati, Brian Nguyen, Atharve Pandey
