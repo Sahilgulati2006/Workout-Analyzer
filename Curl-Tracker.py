@@ -185,12 +185,9 @@ def main():
                 )
 
                 # Fatigue detection
-                sum_times = 0
-                for times in rep_times:
-                    sum_times += times
-                # TODO: fix the changing rep logic
                 if len(rep_times) > 1:
-                    avg_rep_time = (sum_times) / len(rep_times)
+                    rep_differences = [rep_times[i] - rep_times[i - 1] for i in range (1, len(rep_times))]
+                    avg_rep_time = sum(rep_differences) / len(rep_differences)
                     if avg_rep_time > fatigue_threshold:
                         cv2.putText(
                             image,
